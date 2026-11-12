@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <string.h>
+#include <dirent.h>
+#include <errno.h>
 
 int main(void)
 {
@@ -23,11 +25,17 @@ int main(void)
         {
             if (arg1 == NULL)
             {
-                printf("comando: %s \n", cmd);
-            }
-            else
-            {
-                printf("comando: %s, argumento: %s \n", cmd, arg1); // practica para ver si funciona
+                DIR *d = opendir("."); // pide acceso a la carpeta actual y se guarda la direccion en d
+                if(d == NULL) {
+                    int error_carpeta = errno;
+                    printf("Ls no se pudo abrir: %s\n", strerror(error_carpeta));
+                } else {
+                struct dirent *e; // struct dirent es una entrada de directorio, seria cada uno de los archivos o carpetas dentro de d, e es un puntero
+                while ((e = readdir(d)) != NULL) { // recorre la carpeta hasta que no exista el siguiente (readdir(d))
+                    printf("%s\n", e-> d_name); // print del nombre del archivo o carpeta actual
+                }
+                closedir(d); // libera el acceso a la carpeta
+                }
             }
         }
         else if (strcmp(cmd, "cp") == 0)
