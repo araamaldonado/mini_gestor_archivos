@@ -23,19 +23,30 @@ int main(void)
 
         if (strcmp(cmd, "ls") == 0) // compara la palabra que guardamos en cmd con ls, si es ls lista los archivos
         {
-            if (arg1 == NULL)
+            const char *ruta; // declaro variable ruta
+            if (arg1 == NULL) // si no puse ninguna, la ruta es la carpeta actual
             {
-                DIR *d = opendir("."); // pide acceso a la carpeta actual y se guarda la direccion en d
-                if(d == NULL) {
-                    int error_carpeta = errno;
-                    printf("Ls no se pudo abrir: %s\n", strerror(error_carpeta));
-                } else {
+                ruta = ".";
+            }
+            else // si puse el nombre de la ruta, uso esa. si pongo ".." lee la carpeta de arriba
+            {
+                ruta = arg1;
+            }
+
+            DIR *d = opendir(ruta); // pide acceso a la carpeta y se guarda la direccion en d
+            if (d == NULL)
+            {
+                int error_carpeta = errno;
+                printf("Ls no se pudo abrir: %s\n", strerror(error_carpeta));
+            }
+            else
+            {
                 struct dirent *e; // struct dirent es una entrada de directorio, seria cada uno de los archivos o carpetas dentro de d, e es un puntero
-                while ((e = readdir(d)) != NULL) { // recorre la carpeta hasta que no exista el siguiente (readdir(d))
-                    printf("%s\n", e-> d_name); // print del nombre del archivo o carpeta actual
+                while ((e = readdir(d)) != NULL)
+                {                              // recorre la carpeta hasta que no exista el siguiente (readdir(d))
+                    printf("%s\n", e->d_name); // print del nombre del archivo o carpeta actual
                 }
                 closedir(d); // libera el acceso a la carpeta
-                }
             }
         }
         else if (strcmp(cmd, "cp") == 0)
