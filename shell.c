@@ -44,7 +44,7 @@ int main(void)
                 struct dirent *e; // struct dirent es una entrada de directorio, seria cada uno de los archivos o carpetas dentro de d, e es un puntero
                 while ((e = readdir(d)) != NULL)
                 {                              // recorre la carpeta hasta que no exista el siguiente (readdir(d))
-                    printf("%s\n", e->d_name); // print del nombre del archivo o carpeta actual
+                    printf("%s\n", e->d_name); // print del nombre del archivo o carpeta actual, va a la direccion e (ya que es puntero) y toma la variable d_name
                 }
                 closedir(d); // libera el acceso a la carpeta
             }
@@ -74,14 +74,8 @@ int main(void)
         }
         else if (strcmp(cmd, "rm") == 0)
         {
-            if (arg1 == NULL)
-            {
-                printf("comando: %s \n", cmd);
-            }
-            else
-            {
-                printf("comando: %s, argumento: %s \n", cmd, arg1); // practica para ver si funciona
-            }
+            
+
         }
         else if (strcmp(cmd, "exit") == 0) // exit para salir
         {
