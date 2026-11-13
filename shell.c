@@ -2,6 +2,10 @@
 #include <string.h>
 #include <dirent.h>
 #include <errno.h>
+#include <unistd.h>
+#include <sys/stat.h>
+
+int eliminar(const char *ruta); // declaracion de funcion para eliminar en el comando rm
 
 int main(void)
 {
@@ -51,31 +55,34 @@ int main(void)
         }
         else if (strcmp(cmd, "cp") == 0)
         {
-            if (arg1 == NULL || arg2 == NULL)
-            {
-                printf("Faltan argumentos \n");
-            }
-
-            else
-            {
-                printf("comando: %s, argumentos: %s y %s \n", cmd, arg1, arg2); // practica para ver si funciona
-            }
+            // comando cp
         }
         else if (strcmp(cmd, "mv") == 0)
         {
-            if (arg1 == NULL)
-            {
-                printf("comando: %s \n", cmd);
-            }
-            else
-            {
-                printf("comando: %s, argumento: %s \n", cmd, arg1); // practica para ver si funciona
-            }
+            // comando mv
         }
         else if (strcmp(cmd, "rm") == 0)
         {
-            
-
+            if (arg1 == NULL)
+            {
+                printf("Debe ingresar una ruta.\n"); // no puede ser null
+            }
+            else if (strcmp(arg1, ".") == 0 || strcmp(arg1, "..") == 0 || strcmp(arg1, "/") == 0) // tenemos que ingresar la ruta a eliminar
+            {
+                printf("No se permite eliminar %s\n", arg1);
+            }
+            else
+            {
+                int rm = eliminar(arg1); // va a devolver un entero
+                if (rm != 0)
+                { // si no devuelve 0 es porque hubo un error
+                    printf("No se pudo eliminar %s\n", arg1);
+                }
+                else
+                {
+                    printf("Eliminado %s con exito\n", arg1);
+                }
+            }
         }
         else if (strcmp(cmd, "exit") == 0) // exit para salir
         {
@@ -87,4 +94,64 @@ int main(void)
         }
     }
     return 0;
+}
+
+int eliminar(const char *ruta)
+{
+    struct stat st;               // estructura de datos vacia que vamos a rellenar
+    int datos = lstat(ruta, &st); // carga los datos de ruta en st, asi podemos preguntar luego el tipo (si es un archivo o carpeta)
+
+    if (datos == -1) // si da un error en el lstat
+    {
+        int error_lstat = errno;
+        return error_lstat;
+    }
+
+    if (S_ISDIR(st.st_mode) == 0) // si no es un directorio, es decir un archivo u otro que no sea carpeta
+    {
+        int eliminar_nodir = unlink(ruta); // caso base
+        if (eliminar_nodir == -1) // si hubo un error al eliminar
+        {
+            int error_archivo = errno;
+            return error_archivo;
+        }
+        return 0;
+    }
+    else
+    {
+        DIR *r = opendir(ruta); // abre el directorio
+        if (r == NULL) // si hay error al abrir
+        {
+            int error_carpeta = errno;
+            return error_carpeta;
+        }
+        else
+        {
+            struct dirent *e; // struct dirent es una entrada de directorio, seria cada uno de los archivos o carpetas dentro de r, e es un puntero
+            while ((e = readdir(r)) != NULL) // bucle recursivo
+            {
+                if (strcmp(e->d_name, ".") == 0 || strcmp(e->d_name, "..") == 0) // si intento eliminar con . o ..
+                {
+                    continue; // como . y .. aparecen en todas las carpetas, esto hace que termine la recursividad
+                }
+                char hijo[512]; 
+                snprintf(hijo, sizeof(hijo), "%s/%s", ruta, e->d_name);
+                int resultado = eliminar(hijo); // recursividad
+                if (resultado != 0) // si no da 0 es error, salgo de la carpeta
+                {
+                    closedir(r);
+                    return resultado;
+                }
+            }
+            closedir(r); // salgo de la carpeta
+            int final = rmdir(ruta); 
+            if (final != 0)
+            {
+                int error_final = errno;
+                return error_final;
+            } else {
+                return final;
+            }
+        }
+    }
 }
