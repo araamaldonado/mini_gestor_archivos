@@ -3,12 +3,15 @@
 #include <dirent.h>
 #include <errno.h>
 #include <unistd.h>
-#include <sys/stat.h>
+#include "copiar.h"
+#include "mover.h"
+#include "auditoria.h"
+#include "eliminar.h"
 
-int eliminar(const char *ruta); // declaracion de funcion para eliminar en el comando rm
 
 int main(void)
 {
+    auditoria_iniciar(); // inicio el audio_log
     char linea[256]; // cantidad max de caracteres de la linea
     while (1)
     {
@@ -24,6 +27,8 @@ int main(void)
             continue;                   // si no ingreso nada no se rompe, vuelve a preguntar
         char *arg1 = strtok(NULL, " "); // segunda palabra es null o argumento
         char *arg2 = strtok(NULL, " "); // tercera palabra es null o argumento
+
+        int codigo = 0; // inicializo la variable que voy a usar como codigo en la funcion registrar
 
         if (strcmp(cmd, "ls") == 0) // compara la palabra que guardamos en cmd con ls, si es ls lista los archivos
         {
@@ -55,11 +60,35 @@ int main(void)
         }
         else if (strcmp(cmd, "cp") == 0)
         {
-            // comando cp
+            if (arg1 == NULL || arg2 == NULL)
+            {
+                printf("Debe ingresar una ruta de origen y destino.\n"); // no puede ser null
+                codigo = EINVAL; 
+            }
+            else
+            {
+                codigo = copiar(arg1, arg2); // llamado a la funcion copiar
+                if (codigo != 0)
+                { // si no da 0 es porque hubo un error
+                    printf("No se pudo copiar porque %s\n", strerror(codigo));
+                }
+            }
         }
         else if (strcmp(cmd, "mv") == 0)
         {
-            // comando mv
+            if (arg1 == NULL || arg2 == NULL)
+            {
+                printf("Debe ingresar una ruta de origen y destino.\n"); // no puede ser null
+            }
+            else
+            {
+                int resultado = mover(arg1, arg2); // llamado a la funcion mover
+                if (resultado != 0)
+                { // si no da 0 es porque hubo un error
+                    int error_mover = errno;
+                    printf("No se pudo mover porque %s\n", strerror(error_mover));
+                }
+            }
         }
         else if (strcmp(cmd, "rm") == 0)
         {
@@ -73,10 +102,10 @@ int main(void)
             }
             else
             {
-                int rm = eliminar(arg1); // va a devolver un entero
-                if (rm != 0)
+                codigo = eliminar(arg1); // va a devolver un entero
+                if (codigo != 0)
                 { // si no devuelve 0 es porque hubo un error
-                    printf("No se pudo eliminar %s\n", arg1);
+                    printf("No se pudo eliminar %s porque %s\n", arg1, strerror(codigo));
                 }
                 else
                 {
@@ -92,66 +121,8 @@ int main(void)
         {
             printf("Comando desconocido\n");
         }
+        registrar(cmd, codigo);
     }
+    auditoria_cerrar();
     return 0;
-}
-
-int eliminar(const char *ruta)
-{
-    struct stat st;               // estructura de datos vacia que vamos a rellenar
-    int datos = lstat(ruta, &st); // carga los datos de ruta en st, asi podemos preguntar luego el tipo (si es un archivo o carpeta)
-
-    if (datos == -1) // si da un error en el lstat
-    {
-        int error_lstat = errno;
-        return error_lstat;
-    }
-
-    if (S_ISDIR(st.st_mode) == 0) // si no es un directorio, es decir un archivo u otro que no sea carpeta
-    {
-        int eliminar_nodir = unlink(ruta); // caso base
-        if (eliminar_nodir == -1) // si hubo un error al eliminar
-        {
-            int error_archivo = errno;
-            return error_archivo;
-        }
-        return 0;
-    }
-    else
-    {
-        DIR *r = opendir(ruta); // abre el directorio
-        if (r == NULL) // si hay error al abrir
-        {
-            int error_carpeta = errno;
-            return error_carpeta;
-        }
-        else
-        {
-            struct dirent *e; // struct dirent es una entrada de directorio, seria cada uno de los archivos o carpetas dentro de r, e es un puntero
-            while ((e = readdir(r)) != NULL) // bucle recursivo
-            {
-                if (strcmp(e->d_name, ".") == 0 || strcmp(e->d_name, "..") == 0) // si intento eliminar con . o ..
-                {
-                    continue; // como . y .. aparecen en todas las carpetas, esto hace que termine la recursividad
-                }
-                char hijo[512]; 
-                snprintf(hijo, sizeof(hijo), "%s/%s", ruta, e->d_name);
-                int resultado = eliminar(hijo); // recursividad
-                if (resultado != 0) // si no da 0 es error, salgo de la carpeta
-                {
-                    closedir(r);
-                    return resultado;
-                }
-            }
-            closedir(r); // salgo de la carpeta
-            int final = rmdir(ruta); 
-            if (final != 0)
-            {
-                int error_final = errno;
-                return error_final;
-            } else {
-                return final;
-            }
-        }
-    }
 }
