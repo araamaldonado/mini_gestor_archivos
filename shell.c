@@ -24,6 +24,9 @@ int main(void)
         } // lee lo que ingresa el usuario por teclado en stdin, lo guarda en linea y confirma que no se pase de 256, si se acaba la entrada (Ctrl+D), salgo del bucle
         linea[strcspn(linea, "\n")] = '\0'; // elimina el \n automatico despues de la linea, recorre la linea hasta llegar a \n y lo reemplaza por \0, eliminandolo
 
+        char linea_completa[256];
+        strcpy(linea_completa, linea); //creo una copia de linea para utilizar en registrar con mv y rm
+
         char *cmd = strtok(linea, " "); // separa la linea a partir de espacios, la primera palabra es el comando
         if (cmd == NULL)
             continue;                   // si no ingreso nada no se rompe, vuelve a preguntar
@@ -31,6 +34,7 @@ int main(void)
         char *arg2 = strtok(NULL, " "); // tercera palabra es null o argumento
 
         int codigo = 0; // inicializo la variable que voy a usar como codigo en la funcion registrar
+        const char *operacion_log = cmd; // para utilizar en registrar con el resto
 
         if (strcmp(cmd, "ls") == 0) // compara la palabra que guardamos en cmd con ls, si es ls lista los archivos
         {
@@ -70,6 +74,7 @@ int main(void)
             }
             else
             {
+                operacion_log = linea_completa; // guardo info necesaria
                 codigo = mover(arg1, arg2); // llamado a la funcion mover
                 if (codigo != 0)
                 { // si no da 0 es porque hubo un error
@@ -83,6 +88,7 @@ int main(void)
         }
         else if (strcmp(cmd, "rm") == 0)
         {
+            operacion_log = linea_completa;
             if (arg1 == NULL)
             {
                 printf("Debe ingresar una ruta.\n"); // no puede ser null
@@ -101,13 +107,14 @@ int main(void)
                 // pasar 0 como tamaño le indica al sistema que pase el numero exacto de bytes y el /0
                 // retorna puntero
                 char *ruta_real = realpath(arg1, NULL); // resuelve referencias como ., .. y barras extras
+                size_t tam = strlen(ruta_real); // length ruta
 
                 if (carpeta_actual == NULL)
                 {
                     perror("getcwd");
                     codigo = errno;
                 }
-                else if (ruta_real != NULL && strcmp(ruta_real, carpeta_actual) == 0)
+                else if (strcmp(ruta_real, "/") == 00 || strcmp(carpeta_actual, ruta_real) == 00 || (carpeta_actual[tam] == '/' && strncmp(carpeta_actual, ruta_real, tam) == 0))
                 {
                     printf("No se permite eliminar %s\n", arg1);
                     codigo = EPERM; // operacion no permitida
@@ -130,6 +137,7 @@ int main(void)
         }
         else if (strcmp(cmd, "exit") == 0) // exit para salir
         {
+            registrar(cmd, 0);
             break;
         }
         else
@@ -137,7 +145,7 @@ int main(void)
             printf("Comando desconocido\n");
             codigo = ENOSYS; // funcion no implementada
         }
-        registrar(cmd, codigo);
+        registrar(operacion_log, codigo);
     }
     auditoria_cerrar();
     return 0;

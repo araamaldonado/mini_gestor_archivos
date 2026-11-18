@@ -1,1 +1,5 @@
 2026-11-18 17:51:50 | PID 6540 | rm | FAIL 1 (Operation not permitted)
+2026-11-18 18:16:39 | PID 7677 | rm a.txt | OK
+2026-11-18 18:17:52 | PID 7856 | hola | FAIL 38 (Function not implemented)
+2026-11-18 18:17:54 | PID 7856 | rm a.txt | OK
+2026-11-18 18:18:00 | PID 7856 | rm audit.log | FAIL 1 (Operation not permitted)
