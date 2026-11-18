@@ -4,12 +4,12 @@
 #include <errno.h>
 #include <unistd.h>
 #include <stdlib.h>
-#include "validaciones.h"
-#include "copiar.h"
-#include "mover.h"
-#include "auditoria.h"
-#include "eliminar.h"
-#include "listar.h"
+#include "../include/validaciones.h"
+#include "../include/copiar.h"
+#include "../include/mover.h"
+#include "../include/auditoria.h"
+#include "../include/eliminar.h"
+#include "../include/listar.h"
 
 int main(void)
 {
@@ -52,6 +52,8 @@ int main(void)
 
         if (strcmp(cmd, "ls") == 0) // compara la palabra que guardamos en cmd con ls, si es ls lista los archivos
         {
+            operacion_log = linea_completa;
+
             if (arg2 != NULL)
             {
                 printf("Demasiados argumentos\n");
@@ -65,6 +67,8 @@ int main(void)
         }
         else if (strcmp(cmd, "cp") == 0)
         {
+            operacion_log = linea_completa;
+
             if (arg1 == NULL || arg2 == NULL)
             {
                 printf("Debe ingresar una ruta de origen y destino.\n"); // no puede ser null
@@ -145,14 +149,14 @@ int main(void)
                 // pasar 0 como tamaño le indica al sistema que pase el numero exacto de bytes y el /0
                 // retorna puntero
                 char *ruta_real = realpath(arg1, NULL); // resuelve referencias como ., .. y barras extras
-                size_t tam = strlen(ruta_real);         // length ruta
+                size_t tam = (ruta_real != NULL) ? strlen(ruta_real) : 0;         // length ruta
 
                 if (carpeta_actual == NULL)
                 {
                     perror("getcwd");
                     codigo = errno;
                 }
-                else if (strcmp(ruta_real, "/") == 00 || strcmp(carpeta_actual, ruta_real) == 00 || (carpeta_actual[tam] == '/' && strncmp(carpeta_actual, ruta_real, tam) == 0))
+                else if (ruta_real != NULL && (strcmp(ruta_real, "/") == 0 || strcmp(carpeta_actual, ruta_real) == 0 || (carpeta_actual[tam] == '/' && strncmp(carpeta_actual, ruta_real, tam) == 0)))
                 {
                     printf("No se permite eliminar %s\n", arg1);
                     codigo = EPERM; // operacion no permitida
@@ -173,6 +177,16 @@ int main(void)
                 free(ruta_real);
             }
         }
+        else if (strcmp(cmd, "help") == 0)
+        {
+            printf("Comandos disponibles:\n");
+            printf("  ls [ruta]           lista el contenido de una carpeta\n");
+            printf("  cp origen destino   copia un archivo\n");
+            printf("  mv origen destino   mueve o renombra un archivo o carpeta\n");
+            printf("  rm ruta             elimina un archivo o carpeta (recursivo)\n");
+            printf("  help                muestra esta ayuda\n");
+            printf("  exit                sale de la shell\n");
+        }
         else if (strcmp(cmd, "exit") == 0) // exit para salir
         {
             registrar(cmd, 0);
@@ -180,7 +194,7 @@ int main(void)
         }
         else
         {
-            printf("Comando desconocido\n");
+            printf("Comando desconocido, escriba 'help' para ver la lista de comandos.\n");
             codigo = ENOSYS; // funcion no implementada
         }
         registrar(operacion_log, codigo);
