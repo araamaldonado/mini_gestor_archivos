@@ -49,5 +49,6 @@ void registrar(const char *operacion, int codigo)
         largo = sizeof linea - 1;
     }
 
-    write(log_fd, linea, largo);
+    ssize_t escrito = write(log_fd, linea, largo);
+    (void)escrito;
 }
