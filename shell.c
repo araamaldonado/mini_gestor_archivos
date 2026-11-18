@@ -22,23 +22,29 @@ int main(void)
         {
             break;
         } // lee lo que ingresa el usuario por teclado en stdin, lo guarda en linea y confirma que no se pase de 256, si se acaba la entrada (Ctrl+D), salgo del bucle
+        // cuando no hay \n, nos pasamos de los 255, hay que registrar error de linea larga
+
         linea[strcspn(linea, "\n")] = '\0'; // elimina el \n automatico despues de la linea, recorre la linea hasta llegar a \n y lo reemplaza por \0, eliminandolo
 
         char linea_completa[256];
-        strcpy(linea_completa, linea); //creo una copia de linea para utilizar en registrar con mv y rm
+        strcpy(linea_completa, linea); // creo una copia de linea para utilizar en registrar con mv y rm
 
         char *cmd = strtok(linea, " "); // separa la linea a partir de espacios, la primera palabra es el comando
         if (cmd == NULL)
             continue;                   // si no ingreso nada no se rompe, vuelve a preguntar
         char *arg1 = strtok(NULL, " "); // segunda palabra es null o argumento
         char *arg2 = strtok(NULL, " "); // tercera palabra es null o argumento
+        char *arg3 = strtok(NULL, " "); // creado para asegurar que no usen argumentos de mas
 
-        int codigo = 0; // inicializo la variable que voy a usar como codigo en la funcion registrar
+        int codigo = 0;                  // inicializo la variable que voy a usar como codigo en la funcion registrar
         const char *operacion_log = cmd; // para utilizar en registrar con el resto
 
         if (strcmp(cmd, "ls") == 0) // compara la palabra que guardamos en cmd con ls, si es ls lista los archivos
         {
-
+            if (arg2 != NULL) {
+                printf("Demasiados argumentos\n");
+                codigo = EINVAL;
+            }
             codigo = listar(arg1); // llamado a la funcion copiar
             if (codigo != 0)
             { // si no da 0 es porque hubo un error
@@ -50,6 +56,10 @@ int main(void)
             if (arg1 == NULL || arg2 == NULL)
             {
                 printf("Debe ingresar una ruta de origen y destino.\n"); // no puede ser null
+                codigo = EINVAL;
+            }
+            else if (arg3 != NULL) {
+                printf("Demasiados argumentos\n");
                 codigo = EINVAL;
             }
             else
@@ -72,10 +82,19 @@ int main(void)
                 printf("Debe ingresar una ruta de origen y destino.\n"); // no puede ser null
                 codigo = EINVAL;                                         // ruta invalida
             }
+            else if (arg3 != NULL) {
+                printf("Demasiados argumentos\n");
+                codigo = EINVAL;
+            }
+            else if (validar_distintos(arg1, "audit.log") != 0 || validar_distintos(arg2, "audit.log"))
+            {
+                printf("No se puede mover el archivo auditoria\n");
+                codigo = EPERM;
+            }
             else
             {
                 operacion_log = linea_completa; // guardo info necesaria
-                codigo = mover(arg1, arg2); // llamado a la funcion mover
+                codigo = mover(arg1, arg2);     // llamado a la funcion mover
                 if (codigo != 0)
                 { // si no da 0 es porque hubo un error
                     printf("No se pudo mover porque %s\n", strerror(codigo));
@@ -94,6 +113,10 @@ int main(void)
                 printf("Debe ingresar una ruta.\n"); // no puede ser null
                 codigo = EINVAL;
             }
+            else if (arg2 != NULL) {
+                printf("Demasiados argumentos\n");
+                codigo = EINVAL;
+            }
             else if (validar_distintos(arg1, "audit.log") != 0)
             {
                 printf("No se puede eliminar el archivo auditoria\n");
@@ -107,7 +130,7 @@ int main(void)
                 // pasar 0 como tamaño le indica al sistema que pase el numero exacto de bytes y el /0
                 // retorna puntero
                 char *ruta_real = realpath(arg1, NULL); // resuelve referencias como ., .. y barras extras
-                size_t tam = strlen(ruta_real); // length ruta
+                size_t tam = strlen(ruta_real);         // length ruta
 
                 if (carpeta_actual == NULL)
                 {
@@ -142,8 +165,17 @@ int main(void)
         }
         else
         {
-            printf("Comando desconocido\n");
-            codigo = ENOSYS; // funcion no implementada
+            if (strchr(linea, '\n') == NULL)
+            { // strchr busca la primera ocurrencia, si da NULL es porque no esta \n
+                printf("Error: comando supera los 255 caracteres.\n");
+                operacion_log = "Linea demasiado larga";
+                codigo = EINVAL;
+            }
+            else
+            {
+                printf("Comando desconocido\n");
+                codigo = ENOSYS; // funcion no implementada
+            }
         }
         registrar(operacion_log, codigo);
     }
