@@ -15,3 +15,4 @@
 2026-11-18 19:23:32 | PID 11609 | mv | FAIL 1 (Operation not permitted)
 2026-11-18 19:27:13 | PID 12069 | ls | FAIL 2 (No such file or directory)
 2026-11-18 19:27:27 | PID 12069 | rm aa aa | FAIL 22 (Invalid argument)
+2026-11-18 19:36:21 | PID 12772 | Linea demasiado larga | FAIL 22 (Invalid argument)

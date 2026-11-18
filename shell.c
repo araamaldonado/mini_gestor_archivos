@@ -24,6 +24,17 @@ int main(void)
         } // lee lo que ingresa el usuario por teclado en stdin, lo guarda en linea y confirma que no se pase de 256, si se acaba la entrada (Ctrl+D), salgo del bucle
         // cuando no hay \n, nos pasamos de los 255, hay que registrar error de linea larga
 
+        if (strchr(linea, '\n') == NULL)
+        { // strchr busca la primera ocurrencia, si da NULL es porque no esta \n
+            int c;
+            while ((c = getchar()) != '\n' && c != EOF) // borra el resto
+            {
+            } 
+            printf("Error: comando supera los 255 caracteres.\n");
+            registrar("Linea demasiado larga", EINVAL); // registra el error 
+            continue; // vuelve
+                }
+
         linea[strcspn(linea, "\n")] = '\0'; // elimina el \n automatico despues de la linea, recorre la linea hasta llegar a \n y lo reemplaza por \0, eliminandolo
 
         char linea_completa[256];
@@ -41,7 +52,8 @@ int main(void)
 
         if (strcmp(cmd, "ls") == 0) // compara la palabra que guardamos en cmd con ls, si es ls lista los archivos
         {
-            if (arg2 != NULL) {
+            if (arg2 != NULL)
+            {
                 printf("Demasiados argumentos\n");
                 codigo = EINVAL;
             }
@@ -58,7 +70,8 @@ int main(void)
                 printf("Debe ingresar una ruta de origen y destino.\n"); // no puede ser null
                 codigo = EINVAL;
             }
-            else if (arg3 != NULL) {
+            else if (arg3 != NULL)
+            {
                 printf("Demasiados argumentos\n");
                 codigo = EINVAL;
             }
@@ -82,7 +95,8 @@ int main(void)
                 printf("Debe ingresar una ruta de origen y destino.\n"); // no puede ser null
                 codigo = EINVAL;                                         // ruta invalida
             }
-            else if (arg3 != NULL) {
+            else if (arg3 != NULL)
+            {
                 printf("Demasiados argumentos\n");
                 codigo = EINVAL;
             }
@@ -113,7 +127,8 @@ int main(void)
                 printf("Debe ingresar una ruta.\n"); // no puede ser null
                 codigo = EINVAL;
             }
-            else if (arg2 != NULL) {
+            else if (arg2 != NULL)
+            {
                 printf("Demasiados argumentos\n");
                 codigo = EINVAL;
             }
@@ -165,17 +180,8 @@ int main(void)
         }
         else
         {
-            if (strchr(linea, '\n') == NULL)
-            { // strchr busca la primera ocurrencia, si da NULL es porque no esta \n
-                printf("Error: comando supera los 255 caracteres.\n");
-                operacion_log = "Linea demasiado larga";
-                codigo = EINVAL;
-            }
-            else
-            {
-                printf("Comando desconocido\n");
-                codigo = ENOSYS; // funcion no implementada
-            }
+            printf("Comando desconocido\n");
+            codigo = ENOSYS; // funcion no implementada
         }
         registrar(operacion_log, codigo);
     }
