@@ -3,6 +3,8 @@
 #include <dirent.h>
 #include <errno.h>
 #include <unistd.h>
+#include <stdlib.h>
+#include "validaciones.h"
 #include "copiar.h"
 #include "mover.h"
 #include "auditoria.h"
@@ -52,7 +54,9 @@ int main(void)
                 if (codigo != 0)
                 { // si no da 0 es porque hubo un error
                     printf("No se pudo copiar porque %s\n", strerror(codigo));
-                } else {
+                }
+                else
+                {
                     printf("%s copiado con éxito en %s\n", arg1, arg2);
                 }
             }
@@ -62,7 +66,7 @@ int main(void)
             if (arg1 == NULL || arg2 == NULL)
             {
                 printf("Debe ingresar una ruta de origen y destino.\n"); // no puede ser null
-                codigo = EINVAL; // ruta invalida
+                codigo = EINVAL;                                         // ruta invalida
             }
             else
             {
@@ -70,7 +74,9 @@ int main(void)
                 if (codigo != 0)
                 { // si no da 0 es porque hubo un error
                     printf("No se pudo mover porque %s\n", strerror(codigo));
-                } else {
+                }
+                else
+                {
                     printf("Se movio %s a %s con éxito\n", arg1, arg2);
                 }
             }
@@ -82,22 +88,44 @@ int main(void)
                 printf("Debe ingresar una ruta.\n"); // no puede ser null
                 codigo = EINVAL;
             }
-            else if (strcmp(arg1, ".") == 0 || strcmp(arg1, "..") == 0 || strcmp(arg1, "/") == 0) // tenemos que ingresar la ruta a eliminar
+            else if (validar_distintos(arg1, "audit.log") != 0)
             {
-                printf("No se permite eliminar %s\n", arg1);
-                codigo = EPERM; // operacion no permitida
+                printf("No se puede eliminar el archivo auditoria\n");
+                codigo = EPERM;
             }
+
             else
             {
-                codigo = eliminar(arg1); // va a devolver un entero
-                if (codigo != 0)
-                { // si no devuelve 0 es porque hubo un error
-                    printf("No se pudo eliminar %s porque %s\n", arg1, strerror(codigo));
+                char *carpeta_actual = getcwd(NULL, 0); // asigna dinamicamente un buffer con el espacio para guardar la direccion actual,
+                // NULL es el buffer,
+                // pasar 0 como tamaño le indica al sistema que pase el numero exacto de bytes y el /0
+                // retorna puntero
+                char *ruta_real = realpath(arg1, NULL); // resuelve referencias como ., .. y barras extras
+
+                if (carpeta_actual == NULL)
+                {
+                    perror("getcwd");
+                    codigo = errno;
+                }
+                else if (ruta_real != NULL && strcmp(ruta_real, carpeta_actual) == 0)
+                {
+                    printf("No se permite eliminar %s\n", arg1);
+                    codigo = EPERM; // operacion no permitida
                 }
                 else
                 {
-                    printf("Eliminado %s con exito\n", arg1);
+                    codigo = eliminar(arg1); // va a devolver un entero
+                    if (codigo != 0)
+                    { // si no devuelve 0 es porque hubo un error
+                        printf("No se pudo eliminar %s porque %s\n", arg1, strerror(codigo));
+                    }
+                    else
+                    {
+                        printf("Eliminado %s con exito\n", arg1);
+                    }
                 }
+                free(carpeta_actual); // estaban en el heap y el free() libera la memoria
+                free(ruta_real);
             }
         }
         else if (strcmp(cmd, "exit") == 0) // exit para salir
