@@ -58,11 +58,12 @@ int main(void)
             {
                 printf("Demasiados argumentos\n");
                 codigo = EINVAL;
-            }
+            } else {
             codigo = listar(arg1); // llamado a la funcion copiar
             if (codigo != 0)
             { // si no da 0 es porque hubo un error
                 printf("No se pudo listar porque %s\n", strerror(codigo));
+            }
             }
         }
         else if (strcmp(cmd, "cp") == 0)
@@ -94,6 +95,7 @@ int main(void)
         }
         else if (strcmp(cmd, "mv") == 0)
         {
+            operacion_log = linea_completa; // guardo info necesaria
             if (arg1 == NULL || arg2 == NULL)
             {
                 printf("Debe ingresar una ruta de origen y destino.\n"); // no puede ser null
@@ -104,14 +106,13 @@ int main(void)
                 printf("Demasiados argumentos\n");
                 codigo = EINVAL;
             }
-            else if (validar_distintos(arg1, "audit.log") != 0 || validar_distintos(arg2, "audit.log"))
+            else if (validar_distintos(arg1, "audit.log") != 0 || validar_distintos(arg2, "audit.log") != 0)
             {
                 printf("No se puede mover el archivo auditoria\n");
                 codigo = EPERM;
             }
             else
             {
-                operacion_log = linea_completa; // guardo info necesaria
                 codigo = mover(arg1, arg2);     // llamado a la funcion mover
                 if (codigo != 0)
                 { // si no da 0 es porque hubo un error
