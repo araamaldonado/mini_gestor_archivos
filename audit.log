@@ -1,0 +1,41 @@
+2026-11-18 17:51:50 | PID 6540 | rm | FAIL 1 (Operation not permitted)
+2026-11-18 18:16:39 | PID 7677 | rm a.txt | OK
+2026-11-18 18:17:52 | PID 7856 | hola | FAIL 38 (Function not implemented)
+2026-11-18 18:17:54 | PID 7856 | rm a.txt | OK
+2026-11-18 18:18:00 | PID 7856 | rm audit.log | FAIL 1 (Operation not permitted)
+2026-11-18 19:04:53 | PID 9354 | kjfnvkjdnvdjvndvdjkfdjdjkjfjkfdjkdjkfjkfjkfjkdjkdfjfjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj | FAIL 38 (Function not implemented)
+2026-11-18 19:08:21 | PID 9732 | linea demasiado larga | FAIL 22 (Invalid argument)
+2026-11-18 19:08:21 | PID 9732 | m | FAIL 38 (Function not implemented)
+2026-11-18 19:09:59 | PID 9881 | m | FAIL 38 (Function not implemented)
+2026-11-18 19:13:27 | PID 10273 | Linea demasiado larga | FAIL 22 (Invalid argument)
+2026-11-18 19:13:27 | PID 10273 | Linea demasiado larga | FAIL 22 (Invalid argument)
+2026-11-18 19:14:34 | PID 10492 | Linea demasiado larga | FAIL 22 (Invalid argument)
+2026-11-18 19:14:34 | PID 10492 | Linea demasiado larga | FAIL 22 (Invalid argument)
+2026-11-18 19:23:24 | PID 11609 | mv | FAIL 22 (Invalid argument)
+2026-11-18 19:23:32 | PID 11609 | mv | FAIL 1 (Operation not permitted)
+2026-11-18 19:27:13 | PID 12069 | ls | FAIL 2 (No such file or directory)
+2026-11-18 19:27:27 | PID 12069 | rm aa aa | FAIL 22 (Invalid argument)
+2026-11-18 19:36:21 | PID 12772 | Linea demasiado larga | FAIL 22 (Invalid argument)
+2026-11-18 20:40:07 | PID 4239 | cp | OK
+2026-11-18 20:40:36 | PID 4239 | cp | FAIL 17 (File exists)
+2026-11-18 20:40:55 | PID 4239 | mv copia.txt otra.txt | OK
+2026-11-18 20:41:17 | PID 4239 | mv noexiste.txt x | FAIL 2 (No such file or directory)
+2026-11-18 20:41:29 | PID 4239 | ls | OK
+2026-11-18 20:41:39 | PID 4239 | exit | OK
+2026-11-18 20:48:13 | PID 5806 | rm audit.log | FAIL 1 (Operation not permitted)
+2026-11-18 20:48:21 | PID 5806 | rm | FAIL 22 (Invalid argument)
+2026-11-18 20:48:49 | PID 5806 | mv | FAIL 1 (Operation not permitted)
+2026-11-18 20:49:05 | PID 5806 | ls | OK
+2026-11-18 20:49:09 | PID 5806 | ls | FAIL 2 (No such file or directory)
+2026-11-18 20:49:30 | PID 5806 | help | FAIL 38 (Function not implemented)
+2026-11-18 20:51:48 | PID 5806 | exit | OK
+2026-11-18 21:09:11 | PID 11091 | rm noexiste.txt | FAIL 2 (No such file or directory)
+2026-11-18 21:13:25 | PID 12034 | asd | FAIL 38 (Function not implemented)
+2026-11-18 21:13:31 | PID 12034 | help | OK
+2026-11-18 21:14:27 | PID 12034 | rm owo/ | OK
+2026-11-18 21:14:45 | PID 12034 | rm jiji | OK
+2026-11-18 21:32:49 | PID 16244 | hola | FAIL 38 (Function not implemented)
+2026-11-18 21:32:53 | PID 16244 | rm no.txt | FAIL 2 (No such file or directory)
+2026-11-18 21:32:59 | PID 16244 | buto | FAIL 38 (Function not implemented)
+2026-11-18 21:33:26 | PID 16244 | cp hola.txt ju.txt | FAIL 2 (No such file or directory)
+2026-11-18 21:33:40 | PID 16244 | ls | OK

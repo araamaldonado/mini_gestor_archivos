@@ -1,0 +1,5 @@
+*.o
+audit.log
+minishell
+shell_test
+shell

@@ -8,8 +8,13 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": false,
+<<<<<<< HEAD
       "cwd": "/home/martu/tp/mini_gestor_archivos/src",
       "program": "/home/martu/tp/mini_gestor_archivos/src/build/Debug/outDebug",
+=======
+      "cwd": "/home/martu/minigestor/mini_gestor_archivos",
+      "program": "/home/martu/minigestor/mini_gestor_archivos/build/Debug/outDebug",
+>>>>>>> 28e81dad4cdaed5884db93fb346a032d9207ca35
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [
