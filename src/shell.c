@@ -157,7 +157,7 @@ int main(void)
                     perror("getcwd");
                     codigo = errno;
                 }
-                else if (ruta_real != NULL && (strcmp(ruta_real, "/") == 0 || strcmp(carpeta_actual, ruta_real) == 0 || (carpeta_actual[tam] == '/' && strncmp(carpeta_actual, ruta_real, tam) == 0)))
+                else if (ruta_real != NULL && (strcmp(ruta_real, "/") == 0 || strcmp(carpeta_actual, ruta_real) == 0 || tam < strlen(carpeta_actual) && (carpeta_actual[tam] == '/' && strncmp(carpeta_actual, ruta_real, tam) == 0)))
                 {
                     printf("No se permite eliminar %s\n", arg1);
                     codigo = EPERM; // operacion no permitida
